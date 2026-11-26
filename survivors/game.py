@@ -8,7 +8,7 @@ from . import settings as S
 from .enemy import Enemy, XPGem
 from .player import Player
 from .upgrades import random_choices
-from .weapons import Weapon
+from .weapons import OrbitingKnives, Weapon
 
 
 class Game:
@@ -24,6 +24,7 @@ class Game:
     def reset(self):
         self.player = Player()
         self.weapon = Weapon()
+        self.knives = OrbitingKnives()
         self.enemies = []
         self.projectiles = []
         self.gems = []
@@ -52,7 +53,7 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if self.state == "levelup" and event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
                     _, apply = self.choices[event.key - pygame.K_1]
-                    apply(self.player, self.weapon)
+                    apply(self)
                     self.state = "playing"
                 elif self.state == "gameover" and event.key == pygame.K_r:
                     self.reset()
@@ -66,6 +67,7 @@ class Game:
         for e in self.enemies:
             e.update(dt, self.player.pos)
         self.weapon.update(dt, self.player, self.enemies, self.projectiles)
+        self.knives.update(dt, self.player, self.enemies)
         for p in self.projectiles:
             p.update(dt)
         for g in self.gems:
@@ -138,6 +140,7 @@ class Game:
             e.draw(self.screen, camera)
         for p in self.projectiles:
             p.draw(self.screen, camera)
+        self.knives.draw(self.screen, camera, self.player)
         self.player.draw(self.screen, camera)
 
         self.draw_hud()
